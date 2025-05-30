@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.suhodo.boot01.domain.Board;
 
-import groovy.util.logging.Log4j2;
+import lombok.extern.log4j.Log4j2;
 
 @SpringBootTest
 @Log4j2
@@ -24,7 +24,9 @@ public class BoardRepositoryTests {
                         .content("content..." + i)
                         .writer("user" + (i % 10))
                         .build();
-                        
-        })
+
+            Board result = boardRepository.save(board);
+            log.info("BNO: " + result.getBno());                        
+        });
     }
 }
