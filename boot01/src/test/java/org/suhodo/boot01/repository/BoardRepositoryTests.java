@@ -1,0 +1,30 @@
+package org.suhodo.boot01.repository;
+
+import java.util.stream.IntStream;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.suhodo.boot01.domain.Board;
+
+import groovy.util.logging.Log4j2;
+
+@SpringBootTest
+@Log4j2
+public class BoardRepositoryTests {
+
+    @Autowired
+    private BoardRepository boardRepository;
+
+    @Test
+    public void testInsert(){
+        IntStream.rangeClosed(1, 100).forEach(i -> {
+            Board board = Board.builder()
+                        .title("title..." + i)
+                        .content("content..." + i)
+                        .writer("user" + (i % 10))
+                        .build();
+                        
+        })
+    }
+}
