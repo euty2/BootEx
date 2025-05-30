@@ -39,11 +39,13 @@ public class SampleController {
     public void ex2(Model model){
         log.info("ex/ex2.....................");
 
+        // 리스트 전달
         List<String> strList = IntStream.range(1, 10)
                                 .mapToObj(i->"Data"+i)
                                 .collect(Collectors.toList());
         model.addAttribute("list", strList);
 
+        // 맵 전달 
         Map<String, String> map = new HashMap<>();
         map.put("A", "AAAA");
         map.put("B", "BBBB");
@@ -61,7 +63,8 @@ public class SampleController {
                 return p3;
             }
         }
-         
+        
+        // 클래스 객체 전달
         SampleDTO sampleDTO = new SampleDTO();
         sampleDTO.p1 = "Value -- p1";
         sampleDTO.p2 = "Value -- p2";
