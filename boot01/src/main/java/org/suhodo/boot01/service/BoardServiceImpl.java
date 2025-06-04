@@ -1,11 +1,17 @@
 package org.suhodo.boot01.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.suhodo.boot01.domain.Board;
 import org.suhodo.boot01.dto.BoardDTO;
+import org.suhodo.boot01.dto.PageRequestDTO;
+import org.suhodo.boot01.dto.PageResponseDTO;
 import org.suhodo.boot01.repository.BoardRepository;
 
 import groovy.util.logging.Log4j2;
@@ -16,21 +22,22 @@ import lombok.RequiredArgsConstructor;
 @Log4j2                     // 로그 출력
 @RequiredArgsConstructor    // Bean을 주입할 때 생성자를 통해 주입
 @Transactional              // DBMS을 입출력시 함수 종료 전에 트랜잭션이 유지되도록
-public class BoardServiceImpl implements BoardService {
+public class BoardServiceImpl implements BoardService{
+
     /*
      * Spring Container의 Bean을 주입하는 2가지 방법
      * 1) @Autowired
      *    ; JUnit 테스트시에 주로 사용
      *      main영역에서는 상호참조의 오류가 발생하는 경우가 종종 있어서 주로 2)번을 사용한다.
      * 2) @RequiredArgsConstructor설정과
-     *    주입할 변수에 private final을 설정해야 한다.
+     *     주입할 변수에 private final을 설정해야 한다.
      */
     private final ModelMapper modelMapper;
     private final BoardRepository boardRepository;
 
     @Override
     public Long register(BoardDTO boardDTO) {
-        // BoardDTO -> board로 변환
+        // boardDTO -> board로 변환
         Board board = modelMapper.map(boardDTO, Board.class);
 
         Long bno = boardRepository.save(board).getBno();
@@ -56,6 +63,26 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void remove(Long bno) {
         boardRepository.deleteById(bno);
+    }
+
+    @Override
+    public PageResponseDTO<BoardDTO> list(PageRequestDTO pageRequestDTO) {
+
+        String[] types = pageRequestDTO.getTypes();
+        String keyword = pageRequestDTO.getKeyword();
+        Pageable pageable = pageRequestDTO.getPageable("bno");
+
+        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
+
+        List<BoardDTO> dtoList = result.getContent().stream()
+                        .map(board -> modelMapper.map(board, BoardDTO.class))
+                        .collect(Collectors.toList());
+
+        return PageResponseDTO.<BoardDTO>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .dtoList(dtoList)
+                .total((int)result.getTotalElements())
+                .build();
     }
 
 }

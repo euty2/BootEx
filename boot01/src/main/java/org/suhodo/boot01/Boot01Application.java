@@ -12,4 +12,4 @@ public class Boot01Application {
 		SpringApplication.run(Boot01Application.class, args);
 	}
 
-}
+}	
