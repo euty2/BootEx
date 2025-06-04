@@ -1,11 +1,16 @@
 package org.suhodo.boot01.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.suhodo.boot01.domain.Board;
 
 import lombok.extern.log4j.Log4j2;
@@ -63,5 +68,53 @@ public class BoardRepositoryTests {
         Long bno = 1L;
 
         boardRepository.deleteById(bno);
+    }
+
+    @Test
+    public void testPaging(){
+        Pageable pageable = 
+        PageRequest.of(0, 10, Sort.by("bno").descending());
+        Page<Board> result = boardRepository.findAll(pageable);
+
+        log.info("total count: " + result.getTotalElements());
+        log.info("total pages: " + result.getTotalPages());
+        log.info("page number: " + result.getNumber());
+        log.info("page size: " + result.getSize());
+
+        List<Board> todoList = result.getContent();
+
+        todoList.forEach(board->log.info(board));
+    }
+
+    @Test
+    public void testTime(){
+        String nowTime = boardRepository.getTime();
+
+        log.info("현재 시간: " + nowTime);
+    }
+    
+    @Test
+    public void testSearch1(){
+        Pageable pageable = PageRequest.of(1, 10,
+                                    Sort.by("bno").descending());
+
+        boardRepository.search1(pageable);
+    }
+
+    @Test
+    public void testSearchAll(){
+        String[] types = {"t", "c", "w"};
+
+        String keyword = "1";
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
+
+        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
+
+        log.info(result.getTotalPages());       // 전체 페이지
+        log.info(result.getSize());             // 전체 갯수
+        log.info(result.getNumber());           // 현재 페이지
+        log.info(result.hasPrevious() + " : " + result.hasNext());
+        result.getContent().forEach(board -> log.info(board));
     }
 }
