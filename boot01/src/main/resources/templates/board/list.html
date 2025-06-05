@@ -47,11 +47,11 @@
                                 <th scope="col">RegDate</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody th:with="link = ${pageRequestDTO.getLink()}">
                             <tr th:each="dto:${responseDTO.dtoList}">
                                 <th scope="row">[[${dto.bno}]]</th>
                                 <td>
-                                    [[${dto.title}]]
+                                    <a th:href="|@{/board/read(bno = ${dto.bno})}&${link}|">[[${dto.title}]]</a>
                                 </td>
                                 <td>[[${dto.writer}]]</td>
                                 <td>[[${#temporals.format(dto.regDate, 'yyyy-MM-dd')}]]</td>
@@ -81,11 +81,67 @@
             </div> <!--end card-->
         </div> <!--end col-->
     </div> <!--end row-->
+
+    <div class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script layout:fragment="script" th:inline="javascript">
 
-    console.log("script.........................");
+    document.querySelector(".pagination").addEventListener("click", function(e){
+        e.preventDefault();     // 해당 요소의 기본 동작을 막는다.(대신 직접 처리)
+        e.stopPropagation();    // 더 이상 버블링 이벤트 전달을 중지한다.
+
+        const target = e.target;    // 이벤트를 발생시킨 주체 element
+
+        // <a></a>태그가 아니면 중지
+        if(target.tagName !=='A')
+            return;
+
+        const num = target.getAttribute("data-num");
+
+        const formObj = document.querySelector("form");
+
+        formObj.innerHTML += `<input type='hidden' name='page' value='${num}'>`;
+
+        formObj.submit();   // submit을 누른 것과 같이 서버로 전송
+
+    }, false);
+
+    document.querySelector(".clearBtn").addEventListener("click", function(e){
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        self.location = '/board/list';
+    }, false);
+
+    const result = [[${result}]];
+
+    console.log("result: " + result);
+
+    const modal = new bootstrap.Modal(document.querySelector(".modal"));
+    const modalBody = document.querySelector(".modal-body p");
+    
+    if(result) {
+        modalBody.textContent = result;
+        modal.show();
+    }
 
 </script>
 
