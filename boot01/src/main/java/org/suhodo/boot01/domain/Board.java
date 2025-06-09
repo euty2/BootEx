@@ -11,15 +11,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Entity         // 테이블이 생성된다.
+@Entity     // 테이블이 생성된다.
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 public class Board extends BaseEntity{
-    @Id         // PK
-    @GeneratedValue(strategy = GenerationType.IDENTITY)     // AUTO_INCREMENT
+    @Id     // PK
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
     private Long bno;
 
     @Column(length=500, nullable=false)

@@ -23,7 +23,7 @@ public class PageRequestDTO {
     @Builder.Default
     private int size = 10;
 
-    private String type;            // 검색의 종류 t, c, w, tc, tw, twc
+    private String type;        // 검색의 종류 t, c, w, tc, tw, twc
 
     private String keyword;
 
@@ -34,29 +34,30 @@ public class PageRequestDTO {
         return type.split("");
     }
 
-    public Pageable getPageable(String...props) {
+    public Pageable getPageable(String...props){
         return PageRequest.of(this.page-1, this.size, Sort.by(props).descending());
     }
 
     private String link;
 
-    // 검색조건과 페이징조건을 문자열로 구성하는 메서드
-    public String getLink() {
+    // 검색 조건과 페이징 조건을 문자열로 구성하는 메서드
+    public String getLink(){
         if(link == null){
             StringBuilder builder = new StringBuilder();
             builder.append("page=" + this.page);
             builder.append("&size=" + this.size);
-
-            if (type!= null && type.length()>0) 
+            
+            if(type!=null && type.length()>0)
                 builder.append("&type=" + type);
 
-            if (keyword!=null){
+            if(keyword!=null){
                 try{
                     builder.append("&keyword=" + URLEncoder.encode(keyword, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {}
+                }catch(UnsupportedEncodingException e){}
             }
-            link = builder.toString();            
+            link = builder.toString();
         }
+
         return link;
     }
 }

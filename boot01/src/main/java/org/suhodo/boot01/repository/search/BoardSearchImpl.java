@@ -8,8 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.suhodo.boot01.domain.Board;
 import org.suhodo.boot01.domain.QBoard;
+import org.suhodo.boot01.domain.QReply;
+import org.suhodo.boot01.dto.BoardListReplyCountDTO;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 
 /*
@@ -19,9 +22,9 @@ import com.querydsl.jpa.JPQLQuery;
  *                 상속: QuerydslRepositorySupport, BoardSearch
  * 3) BoardRepository에 BoardSearch를 상속시킴
  */
-public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch{
+public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch {
 
-    public BoardSearchImpl(){
+    public BoardSearchImpl() {
         super(Board.class);
     }
 
@@ -31,7 +34,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
 
         QBoard board = QBoard.board;
 
-        JPQLQuery<Board> query = from(board);       // FROM board
+        JPQLQuery<Board> query = from(board); // FROM board
 
         query.where(board.title.contains("1")); // WHERE title LIKE '%1%'
 
@@ -48,13 +51,13 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
     public Page<Board> searchAll(String[] types, String keyword, Pageable pageable) {
 
         QBoard board = QBoard.board;
-        JPQLQuery<Board> query = from(board);       // FROM board
+        JPQLQuery<Board> query = from(board); // FROM board
 
-        if((types!=null && types.length>0) && keyword!=null){
+        if ((types != null && types.length > 0) && keyword != null) {
             BooleanBuilder booleanBuilder = new BooleanBuilder();
 
-            for(String type: types){
-                switch(type){
+            for (String type : types) {
+                switch (type) {
                     case "t":
                         booleanBuilder.or(board.title.contains(keyword));
                         break;
@@ -68,10 +71,10 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
             }
             /*
              * WHERE title LIKE '%{keyword}%'
-             *    OR content LIKE '%{keyword}'
-             *    OR writer LIKE '%{keyword}'
+             * OR content LIKE '%{keyword}'
+             * OR writer LIKE '%{keyword}'
              */
-            
+
             query.where(booleanBuilder);
         }
 
@@ -85,5 +88,53 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         long count = query.fetchCount();
 
         return new PageImpl<>(list, pageable, count);
-    }    
+    }
+
+    @Override
+    public Page<BoardListReplyCountDTO> searchWithReplyCount(String[] types, String keyword, Pageable pageable) {
+
+        QBoard board = QBoard.board;
+        QReply reply = QReply.reply;
+
+        JPQLQuery<Board> query = from(board);   // from board
+        query.leftJoin(reply).on(reply.board.eq(board)); // left join reply on board.bno=reply.board_bno
+
+        query.groupBy(board);                   // group by board
+
+        if ((types != null && types.length > 0) && keyword != null) {
+            BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+            for (String type : types) {
+                switch (type) {
+                    case "t":
+                        booleanBuilder.or(board.title.contains(keyword));
+                        break;
+                    case "c":
+                        booleanBuilder.or(board.content.contains(keyword));
+                        break;
+                    case "w":
+                        booleanBuilder.or(board.writer.contains(keyword));
+                        break;
+                }
+            }
+            // where board.title like '%{keyword}%' or
+            //      board.content like '%{keyword}%' or
+            //      board.writer like '%{keyword}%'
+            query.where(booleanBuilder);
+        }
+
+        JPQLQuery<BoardListReplyCountDTO> dtoQuery = 
+                query.select(Projections.bean(BoardListReplyCountDTO.class,
+                    board.bno,
+                    board.title,
+                    board.writer,
+                    board.regDate,
+                    reply.count().as("replyCount")));
+
+        this.getQuerydsl().applyPagination(pageable, dtoQuery);
+        List<BoardListReplyCountDTO> dtoList = dtoQuery.fetch();
+        long count = dtoQuery.fetchCount();
+
+        return new PageImpl<>(dtoList, pageable, count);
+    }
 }

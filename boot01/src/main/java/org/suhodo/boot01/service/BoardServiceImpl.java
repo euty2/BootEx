@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.suhodo.boot01.domain.Board;
 import org.suhodo.boot01.dto.BoardDTO;
+import org.suhodo.boot01.dto.BoardListReplyCountDTO;
 import org.suhodo.boot01.dto.PageRequestDTO;
 import org.suhodo.boot01.dto.PageResponseDTO;
 import org.suhodo.boot01.repository.BoardRepository;
@@ -18,7 +19,7 @@ import groovy.util.logging.Log4j2;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-@Service                    // Service 계층 역할 담당
+@Service                    // Service 계층 역할 담당, Bean으로 자동 등록
 @Log4j2                     // 로그 출력
 @RequiredArgsConstructor    // Bean을 주입할 때 생성자를 통해 주입
 @Transactional              // DBMS을 입출력시 함수 종료 전에 트랜잭션이 유지되도록
@@ -81,6 +82,22 @@ public class BoardServiceImpl implements BoardService{
         return PageResponseDTO.<BoardDTO>withAll()
                 .pageRequestDTO(pageRequestDTO)
                 .dtoList(dtoList)
+                .total((int)result.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public PageResponseDTO<BoardListReplyCountDTO> listWithReplyCount(PageRequestDTO pageRequestDTO) {
+
+        String[] types = pageRequestDTO.getTypes();
+        String keyword = pageRequestDTO.getKeyword();
+        Pageable pageable = pageRequestDTO.getPageable("bno");
+        Page<BoardListReplyCountDTO> result = 
+                boardRepository.searchWithReplyCount(types, keyword, pageable);
+        
+        return PageResponseDTO.<BoardListReplyCountDTO>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .dtoList(result.getContent())
                 .total((int)result.getTotalElements())
                 .build();
     }

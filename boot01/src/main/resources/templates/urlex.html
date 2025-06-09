@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL 설계</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>URL 설계</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>URL (Method)</th>
+                <th>설명</th>
+                <th>반환 데이터</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>/replies (POST)</td>
+                <td>특정한 게시물의 댓글 추가</td>
+                <td>{'rno':11} - 생성된 댓글의 번호</td>
+            </tr>
+            <tr>
+                <td>/replies/list/:bno (GET)</td>
+                <td>특정 게시물(bno)의 댓글 목록<br> '?' 페이지 번호를 추가해서 댓글 페이징 처리</td>
+                <td>PageResponseDTO를 JSON으로 처리</td>
+            </tr>
+            <tr>
+                <td>/replies/:rno (PUT)</td>
+                <td>특정한 번호의 댓글 수정</td>
+                <td>{'rno':11} - 수정된 댓글 번호</td>
+            </tr>
+            <tr>
+                <td>/replies/:rno (DELETE)</td>
+                <td>특정한 번호의 댓글 삭제</td>
+                <td>{'rno':11} - 삭제된 댓글 번호</td>
+            </tr>
+            <tr>
+                <td>/replies/:rno (GET)</td>
+                <td>특정한 번호의 댓글 조회</td>
+                <td>댓글 객체를 JSON으로 변환한 문자열</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

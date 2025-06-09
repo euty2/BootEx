@@ -76,4 +76,9 @@ public class SampleController {
     public void ex3(Model model){
         model.addAttribute("arr", new String[]{"AAA", "BBB", "CCC"});
     }
+
+    @GetMapping("/urlex")
+    public void urlex(){
+
+    }
 }

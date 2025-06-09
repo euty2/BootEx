@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RootConfig {
 
-    // 아래 메서드가 자동 호출되면서 modelMapper객체를  Spring Container의 Bean으로 올려놓는다.
-    // 언제든 지 꺼내서 사용할 수 있도록
-    // Board <-> BoardDao를 변환할 때 사용할 예정.
+    // 아래 메서드가 자동 호출되면서 modelMapaper객체를 Spring Container의 Bean으로 올려놓는다.
+    // 언제든지 꺼내서 사용할 수 있도록
+    // Board <-> BoardDao를 변환할 때 사용할 예정
     @Bean
-    public ModelMapper getMapper() {
+    public ModelMapper getMapper(){
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
             .setFieldMatchingEnabled(true)

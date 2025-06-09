@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@EnableJpaAuditing	// BaseEntity의 새로 기록날짜, 수정날짜 이벤트를 수신
+@EnableJpaAuditing // BaseEntity의 새로기록날짜, 수정날짜 이벤트를 수신
 @SpringBootApplication
 public class Boot01Application {
 
@@ -12,4 +12,4 @@ public class Boot01Application {
 		SpringApplication.run(Boot01Application.class, args);
 	}
 
-}	
+}
