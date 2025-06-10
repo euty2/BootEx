@@ -261,7 +261,7 @@
     const modifyModal = new bootstrap.Modal(document.querySelector(".modifyModal"));
 
     const replyHeader = document.querySelector(".replyHeader");
-    const modifyText = document.querySelector("modifyText");
+    const modifyText = document.querySelector(".modifyText");
     const modifyBtn = document.querySelector(".modifyBtn");
     const removeBtn = document.querySelector(".removeBtn");
     const closeModifyBtn = document.querySelector(".closeModifyBtn");
@@ -287,7 +287,7 @@
             replyHeader.innerHTML = reply.rno;
             modifyText.value = reply.replyText;
             modifyModal.show();
-        }).catch(e => alert('error'));
+        }).catch(e => alert('error : ' + e));
     }, false);
 
     modifyBtn.addEventListener("click", function(e){
