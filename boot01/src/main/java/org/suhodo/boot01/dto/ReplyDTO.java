@@ -2,6 +2,9 @@ package org.suhodo.boot01.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -26,5 +29,9 @@ public class ReplyDTO {
     @NotEmpty
     private String replyer;
     
-    private LocalDateTime regDate, modDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime regDate;
+
+    @JsonIgnore
+    private LocalDateTime modDate;
 }

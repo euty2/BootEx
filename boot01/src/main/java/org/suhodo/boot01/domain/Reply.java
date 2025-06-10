@@ -35,7 +35,7 @@ public class Reply extends BaseEntity{
      * N:1관계를 정의할 때 JPA에서는 자식Entity에서 @ManyToOne을 주로 사용한다.
      * 
      * EARGER : 즉시 가져오다
-     * LAZY : 나중에 요청하면 가져오다(지연된다다)
+     * LAZY : 나중에 요청하면 가져오다(지연된다)
      */
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
@@ -44,7 +44,7 @@ public class Reply extends BaseEntity{
 
     private String replyer;
 
-    public void changeText(String text) {
+    public void changeText(String text){
         this.replyText = text;
     }
 }

@@ -61,9 +61,177 @@
             </div><!--end card-->
         </div><!-- end col-->
     </div><!-- end row-->
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="my-4 ">
+                <!-- 댓글 버튼 -->
+                <button class="btn btn-info  addReplyBtn">ADD REPLY</button>
+            </div>
+            <!-- 댓글 리스트 -->
+            <ul class="list-group replyList">
+            </ul>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <!-- 댓글 페이지네이션 -->
+            <ul class="pagination replyPaging">
+            </ul>
+        </div>
+    </div>
+
+    <div class="modal registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register Reply</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Reply Text</span>
+                        <input type="text" class="form-control replyText">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Replyer</span>
+                        <input type="text" class="form-control replyer">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary registerBtn">Register</button>
+                    <button type="button" class="btn btn-outline-dark closeRegisterBtn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end regist modal -->
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="/js/reply.js"></script>
 </div>
 
 <script layout:fragment="script" th:inline="javascript">
+    const bno = [[${ dto.bno }]];     // 현재 게시글 번호
+
+    // get1(bno);                   // 1) 
+    // console.log(get1(bno));      // 2)
+
+    // 비동기 결과를 받고나서 로그 출력
+    // get1(bno).then(data => {        // 3)
+    //     console.log(data);
+    // }).catch(e => {
+    //     console.error(e);
+    // });
+
+    const replyList = document.querySelector('.replyList');
+    const replyPaging = document.querySelector('.replyPaging');
+
+    // 댓글 목록 화면 출력
+    function printList(dtoList) {
+        let str = '';
+
+        if (dtoList && dtoList.length > 0) {
+
+            for (const dto of dtoList) {
+                str += `<li class="list-group-item d-flex replyItem">
+                        <span class="col-2">${dto.rno}</span>
+                        <span class="col-6" data-rno="${dto.rno}">${dto.replyText}</span>
+                        <span class="col-2">${dto.replyer}</span>
+                        <span class="col-2">${dto.regDate}</span>
+                        </li>`;
+            }
+        }
+
+        replyList.innerHTML = str;
+    }
+
+    // 페이지 목록 화면 출력
+    function printPages(data) {
+        let pageStr = '';
+
+        if (data.prev) {
+            pageStr += `<li class="page-item"><a class="page-link" data-page="${data.start - 1}">PREV</a></li>`;
+        }
+
+        for (let i = data.start; i <= data.end; i++) {
+            pageStr += `<li class="page-item ${i == data.page ? "active" : ""} "><a class="page-link" data-page="${i}">${i}</a></li>`;
+        }
+
+        if (data.next) {
+            pageStr += `<li class="page-item"><a class="page-link" data-page="${data.end + 1}">NEXT</a></li>`;
+        }
+
+        replyPaging.innerHTML = pageStr;
+    }
+
+    // 서버에 해당 게시글의 종속된 댓글 목록 요청
+    function printReplies(page, size, goLast) {
+
+        getList({ bno, page, size, goLast }).then(
+            data => {
+                console.log(data);
+                printList(data.dtoList);        // 목록 처리
+                printPages(data);               // 페이지 처리
+            }).catch(e => {
+                console.error(e);
+            });
+    }
+
+    printReplies(1, 10, true);      // 최신 댓글로 이동
+
+    /*댓글 추가 기능*/
+    const registerModal = new bootstrap.Modal(document.querySelector(".registerModal"));
+    const registerBtn = document.querySelector(".registerBtn");
+    const replyText = document.querySelector(".replyText");
+    const replyer = document.querySelector(".replyer");
+    const closeRegisterBtn = document.querySelector(".closeRegisterBtn");
+
+    document.querySelector(".addReplyBtn").addEventListener("click", function(e){
+        registerModal.show();
+    }, false);
+
+    closeRegisterBtn.addEventListener("click", function(e){
+        registerModal.hide();
+    }, false);
+
+    registerBtn.addEventListener("click", function(e){
+        const replyObj = {
+            bno:bno,
+            replyText:replyText.value,
+            replyer:replyer.value
+        }
+
+        addReply(replyObj).then(result => {
+            alert(result.rno);
+            registerModal.hide();
+            replyText.value = '';
+            replyer.value = '';
+            printReplies(1, 10, true);
+        }).catch(e => {
+            alert("Exception...");
+        })
+    }, false);
+
+    // 페이지 이동 기능 구현
+    let page = 1, size = 10;
+
+    replyPaging.addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        const target = e.target;            // click이벤트를 발생시킨 자식 주체
+
+        // 자식 주체가 없거나 <a>태그가 아니면 중지
+        if(!target || target.tagName != 'A'){
+            return;
+        }
+
+        const pageNum = target.getAttribute('data-page');
+        page = pageNum;
+        printReplies(page, size);
+    }, false);
 
 </script>
 
