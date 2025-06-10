@@ -1,10 +1,15 @@
 package org.suhodo.boot01.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +21,7 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "imageSet")
 public class Board extends BaseEntity{
     @Id     // PK
     @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
@@ -30,6 +35,11 @@ public class Board extends BaseEntity{
 
     @Column(length=50, nullable = false)
     private String writer;
+
+    // @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    @OneToMany
+    @Builder.Default
+    private Set<BoardImage> imageSet = new HashSet<>();
 
     public void change(String title, String content){
         this.title = title;
