@@ -1,6 +1,7 @@
 package org.suhodo.boot01.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -34,4 +35,7 @@ public class BoardDTO {
     
     private LocalDateTime regDate;
     private LocalDateTime modDate;
+
+    // 첨부 파일의 이름들
+    private List<String> fileNames;
 }
