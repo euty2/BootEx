@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.suhodo.boot01.dto.BoardDTO;
+import org.suhodo.boot01.dto.BoardListAllDTO;
 import org.suhodo.boot01.dto.BoardListReplyCountDTO;
 import org.suhodo.boot01.dto.PageRequestDTO;
 import org.suhodo.boot01.dto.PageResponseDTO;
@@ -30,8 +31,11 @@ public class BoardController {
     public void list(PageRequestDTO pageRequestDTO, Model model){
         
         // PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
-        PageResponseDTO<BoardListReplyCountDTO> responseDTO = 
-            boardService.listWithReplyCount(pageRequestDTO);
+        // PageResponseDTO<BoardListReplyCountDTO> responseDTO = 
+        //     boardService.listWithReplyCount(pageRequestDTO);
+
+        PageResponseDTO<BoardListAllDTO> responseDTO =
+            boardService.listWithAll(pageRequestDTO);
 
         log.info(responseDTO);
 
