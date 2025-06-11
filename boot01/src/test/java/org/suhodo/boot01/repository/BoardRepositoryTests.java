@@ -1,7 +1,10 @@
 package org.suhodo.boot01.repository;
 
+import static org.mockito.ArgumentMatchers.isNull;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
@@ -12,9 +15,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Commit;
 import org.suhodo.boot01.domain.Board;
+import org.suhodo.boot01.domain.BoardImage;
 import org.suhodo.boot01.dto.BoardListReplyCountDTO;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 
 @SpringBootTest
@@ -23,6 +29,9 @@ public class BoardRepositoryTests {
 
     @Autowired
     private BoardRepository boardRepository;
+
+    @Autowired
+    private ReplyRepository replyRepository;
 
     @Test
     public void testInsert(){
@@ -133,5 +142,108 @@ public class BoardRepositoryTests {
         log.info(result.hasPrevious() + " : " + result.hasNext());
 
         result.getContent().forEach(board -> log.info(board));
+    }
+
+    @Test
+    public void testInsertWithImages(){
+        Board board = Board.builder()
+                    .title("Image Test")
+                    .content("첨부파일 테스트")
+                    .writer("tester")
+                    .build();
+
+        for(int i=0;i<3;i++){
+            board.addImage(UUID.randomUUID().toString(), "file" + i + ".jpg");
+        }
+
+        boardRepository.save(board);
+    }
+
+    @Transactional  // No Session, 중간에 세션 연결이 중지되는 것을 방지할 때 사용함 
+    @Test
+    public void testReadWithImages(){
+        Optional<Board> result = boardRepository.findById(109L);
+
+        Board board = result.orElseThrow();
+
+        log.info(board);
+        log.info("------------------");
+        log.info(board.getImageSet());
+    }
+
+    @Test
+    public void testReadWithImages1(){
+        Optional<Board> result = boardRepository.findByIdWithImages(109L);
+
+        Board board = result.orElseThrow();
+
+        log.info(board);
+        log.info("---------------------");
+        for(BoardImage boardImage : board.getImageSet()){
+            log.info(boardImage);
+        }
+    }
+
+    @Transactional
+    @Commit
+    @Test
+    public void testModifyImages(){
+        Optional<Board> result = boardRepository.findByIdWithImages(109L);
+
+        Board board = result.orElseThrow();
+
+        /*  모두 삭제 시도
+          Board와 BoardImage의 연결은 끊어지지만,
+          실제 BoardImage가 삭제되지 않는다.
+
+          실제 삭제하고 싶다면 Board의 imageSet에 
+          orphanRemoval = true 설정을 해야 한다.
+        */
+        board.clearImages();        
+
+        for(int i=0;i<2;i++){
+            board.addImage(UUID.randomUUID().toString(), "updatefile" + i + ".jpg");
+        }
+
+        boardRepository.save(board);
+    }
+
+    @Test
+    @Transactional
+    @Commit
+    public void testRemoveAll(){
+        Long bno = 109L;
+
+        replyRepository.deleteByBoard_Bno(bno);     // bno에 종속된 댓글 삭제
+        boardRepository.deleteById(bno);            // 게시글과 종속된 BoardImage 삭제
+    }
+
+    @Test
+    public void testInsertAll(){
+        for(int i=0;i<=100;i++){
+            Board board = Board.builder()
+                    .title("Title..." + i)
+                    .content("Content..." + i)
+                    .writer("writer..." + i)
+                    .build();
+
+            for(int j=0;j<3;j++){
+                if(i%5 == 0)
+                    continue;
+                
+                board.addImage(UUID.randomUUID().toString(), i+"file"+j+".jpg");
+            }
+
+            boardRepository.save(board);
+        }
+    }
+
+    @Transactional
+    @Test
+    public void testSearchImageReplyCount(){
+        Pageable pageable = 
+            PageRequest.of(0, 10, Sort.by("bno").descending());
+
+        boardRepository.searchWithAll(null, null, pageable);
     }
 }

@@ -1,9 +1,13 @@
 package org.suhodo.boot01.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.suhodo.boot01.domain.Board;
 import org.suhodo.boot01.repository.search.BoardSearch;
 
@@ -23,13 +27,24 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardSearch
     // https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html
     Page<Board> findByTitleContainingOrderByBnoDesc(String keyword, Pageable pageable);
 
-    // 2) Native SQL
+    // 2) JPQL(JPA 표준 SQL)
+    // JPA에서 사용하는 SQL
+    // 연결된 물리 DBMS에 따라 해당 Native SQL로 변환된다.
+    // Native SQL보다 사용이 권장된다.
+
+    // EntityGraph는 아래 findByIdWithImages메서드를 호출해서 Board의 정보를 가져올 때
+    // imageSet의 정보도 함께 가져오라는 의미 
+    @EntityGraph(attributePaths = {"imageSet"})
+    @Query("select b from Board b where b.bno = :bno")
+    Optional<Board> findByIdWithImages(@Param("bno") Long bno);
+
+    // 3) Native SQL
     // 직접 물리적 DBMS에 해당하는 쿼리를 작성
     // 비추천(왜냐하면 DBMS에 종속적이 되므로 이식성 나빠짐)
     @Query(value = "select now()", nativeQuery=true)
     String getTime();
 
-    // 3) Querydsl
+    // 4) Querydsl
     // 복잡한 쿼리를 생성하기 위한 메서드의 조합
     // Q + 'Entity명' 클래스를 생성해야 한다.
     /*
